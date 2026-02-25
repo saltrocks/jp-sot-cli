@@ -1,0 +1,20 @@
+{
+  "name": "jp-sot-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "jp-sot": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "test": "bun test",
+    "typecheck": "bun run tsc --noEmit"
+  },
+  "dependencies": {
+    "node-html-parser": "^6.1.13"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "@types/bun": "^1.1.14"
+  }
+}
