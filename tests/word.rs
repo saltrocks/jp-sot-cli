@@ -119,3 +119,43 @@ fn cli_without_query_prints_usage() {
     assert!(!output.status.success());
     assert!(String::from_utf8_lossy(&output.stderr).contains("Usage:"));
 }
+
+#[test]
+fn text_rendering() {
+    let entry = block_on(dictionary().lookup("宣言")).unwrap();
+    let expected = r#"
+宣言【せんげん】 · frequency: Top 2000 · pitch: せ↑んげ↓ん
+Meanings:
+  1. [Noun, Verb (する)] declaration; proclamation; announcement
+Composed of:
+  宣【せん】 imperial order; imperial decree
+  言【げん】 word; remark; statement
+Kanji:
+  宣 "formally declare" · Kyōiku (6th grade) · Kanken 5 · Heisig #200 · frequency: Top 1100-1200
+    │ readings: せん 97%, のたも 1%, のたま 1% · rare readings: せ, ぜん
+    │ etymology: 形声。宀と、音符亘(セン)とから成る。天子が暮らす正殿の意を表す。借りて、あきらかの意に用いる。
+    ├─ 宀 "roof with a chimney" · Kanken 1 · frequency: Never used
+    │    rare readings: べん
+    │    mnemonic: A pictograph of a roof with a chimney.
+    └─ 亘 "span" · Jinmeiyō · Kanken Pre-1 · Heisig #32 · frequency: Top 2800-2900
+       │ readings: わた 100%
+       ├─ 一 "one" · Kyōiku (1st grade) · Kanken 10 · Heisig #1 · frequency: Top 100
+       │    readings: いち 37%, いっ 34%
+       │    mnemonic: A pictograph of a one line.
+       │    etymology: 指事。横線一本で、「ひとつ」、ひいて、数のはじめの意を表す。
+       └─ 旦 "start of a day" · Jōyō · Kanken 2 · Heisig #30 · frequency: Top 1000-1100
+          │ readings: だん 68%, たん 31%
+          │ mnemonic: A pictograph of a sun rising over the horizon which signifies the start of a day.
+          │ etymology: 指事。日と一とから成り、地平線上に日の出ようとするさまにかたどる。「あした」の意を表す。
+          ├─ 日 "sun" · Kyōiku (1st grade) · Kanken 10 · Heisig #12 · frequency: Top 100
+          │    readings: にち 25%, じつ 23%
+          │    mnemonic: A pictograph of a sun, which makes a day.
+          │    etymology: 象形。太陽の形にかたどる。「ひ」、ひいて「ひにち」の意を表す。
+          └─ 一 (expanded above)
+  言 "say" · Kyōiku (2nd grade) · Kanken 9 · Heisig #357 · frequency: Top 100
+      readings: い 44%, ゆ 32%
+      mnemonic: A cryptic pictograph of a face trying to say something.
+      etymology: 指事。口の上に目印を加え、口からことばが出る意を表す。
+"#;
+    assert_eq!(jp_sot::render::text(&entry), &expected[1..]);
+}

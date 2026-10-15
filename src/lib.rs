@@ -5,6 +5,7 @@ pub mod fetch;
 pub mod model;
 pub mod page;
 pub mod parse;
+pub mod render;
 mod resolve;
 
 pub use fetch::{Fetcher, HttpFetcher};

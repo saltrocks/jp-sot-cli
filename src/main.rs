@@ -1,9 +1,9 @@
 use std::process::ExitCode;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use jp_sot::{Dictionary, HttpFetcher};
 
-/// Look up a Japanese word or kanji and print its breakdown as JSON.
+/// Look up a Japanese word or kanji and print its breakdown.
 #[derive(Parser)]
 #[command(
     version,
@@ -13,17 +13,30 @@ struct Cli {
     /// Word or single kanji to look up
     query: String,
 
-    /// Print compact single-line JSON
+    /// Output format
+    #[arg(long, value_enum, default_value_t)]
+    format: Format,
+
+    /// Print JSON on a single line (with --format json)
     #[arg(long)]
     compact: bool,
+}
+
+#[derive(Clone, Copy, Default, ValueEnum)]
+enum Format {
+    /// Indented outline with the kanji decomposition drawn as a tree
+    #[default]
+    Text,
+    /// JSON, for scripts and other programs
+    Json,
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ExitCode {
     let cli = Cli::parse();
     match run(&cli).await {
-        Ok(json) => {
-            println!("{json}");
+        Ok(output) => {
+            print!("{output}");
             ExitCode::SUCCESS
         }
         Err(err) => {
@@ -36,10 +49,10 @@ async fn main() -> ExitCode {
 async fn run(cli: &Cli) -> anyhow::Result<String> {
     let dictionary = Dictionary::new(HttpFetcher::new(HttpFetcher::DEFAULT_DELAY)?);
     let entry = dictionary.lookup(cli.query.trim()).await?;
-    let json = if cli.compact {
-        serde_json::to_string(&entry)?
-    } else {
-        serde_json::to_string_pretty(&entry)?
+    let output = match cli.format {
+        Format::Text => jp_sot::render::text(&entry),
+        Format::Json if cli.compact => serde_json::to_string(&entry)? + "\n",
+        Format::Json => serde_json::to_string_pretty(&entry)? + "\n",
     };
-    Ok(json)
+    Ok(output)
 }
